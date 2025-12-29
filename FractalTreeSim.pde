@@ -1,39 +1,41 @@
 /**
- * 3D Fractal Tree Growth Simulator v2.5
- * [Refactored for Maintenance]
+ * 3D Fractal Tree Growth Simulator v3.0 (Refactored)
  */
 
-// --- ① 保守性の高い変数管理 (Config Constants) ---
-final int   MAX_DAYS         = 30; // [cite: 48]
-final int   LIMIT_DEPTH      = 7;  // [cite: 2, 48]
-final float INTERPOLATION    = 0.05f; // [cite: 2]
-final float ZOOM_SENSITIVITY = 20.0f; // [cite: 3, 64]
+// --- システム設定定数 ---
+final int   MAX_DAYS         = 30;
+final int   LIMIT_DEPTH      = 7; 
+final float INTERPOLATION    = 0.05f;
+final float ZOOM_SENSITIVITY = 20.0f;
 
-// --- システム変数 (Global Variables) ---
+// --- コマンド種別 ---
+final String CMD_WATER      = "WATER";
+final String CMD_FERTILIZER = "FERTILIZER";
+final String CMD_KOTODAMA   = "KOTODAMA";
+
 Tree    myTree;
 int     currentDay = 1;
-boolean isViewerMode = false; // [cite: 49]
+boolean isViewerMode = false;
 
 void setup() {
-  size(1000, 800, P3D); // [cite: 6, 50]
-  colorMode(HSB, 360, 100, 100); // [cite: 6, 50]
-  surface.setTitle("3D Fractal Tree v2.5");
+  size(1000, 800, P3D);
+  colorMode(HSB, 360, 100, 100);
+  surface.setTitle("3D Fractal Tree Simulation");
+  surface.setLocation(5,5);
   
-  myTree = new Tree(); // [cite: 7, 50]
+  myTree = new Tree();
 }
 
 void draw() {
-  renderBackground(); // [cite: 8]
+  renderBackground();
   
   pushMatrix();
-  applyCameraTransform(); // [cite: 9, 10, 52]
+  applyCameraTransform();
+  renderGround();   
   
-  renderGround();    // [cite: 12, 58]
-  myTree.update();   // [cite: 31, 80]
-  myTree.display();  // [cite: 33, 83]
+  myTree.update();  
+  myTree.display(); 
   popMatrix();
   
-  if (!isViewerMode) {
-    drawHUD(); // [cite: 14, 56, 66]
-  }
+  if (!isViewerMode) drawHUD();
 }
