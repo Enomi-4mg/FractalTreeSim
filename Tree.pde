@@ -10,6 +10,7 @@ class Tree {
     boolean isBloomed = false;
     float bloomFactor = 0;
     final float BLOOM_THRESHOLD = 150.0;
+    int STAGE_3_START = 21;
     
     //Lerp目標値
     float tLen, tThick, tAngle, tHue, tLSize;
@@ -34,11 +35,11 @@ class Tree {
             case CMD_WATER :      applyWaterEffect(boost); break;
             case CMD_FERTILIZER : applyFertilizerEffect(boost); break;
             case CMD_KOTODAMA :   applyKotodamaEffect(boost); break;
-            }
+        }
         
         tAngle = constrain(tAngle, 0, PI / 4);
         checkBloomCondition();
-        }
+    }
     
     private void applyWaterEffect(float boost) {
         tLen += 15 * boost;
@@ -47,20 +48,20 @@ class Tree {
         tAngle += 0.02 * boost;
         bloomFactor += 5 * boost;
         tMutation = max(0, tMutation - 0.08);
-        }
+    }
     
     private void applyFertilizerEffect(float boost) {
         tThick += 8 * boost;
         if (currentDepth < LIMIT_DEPTH) currentDepth++;
         bloomFactor += 20 * boost;
         tMutation = max(0, tMutation - 0.06);
-        }
+    }
     
     private void applyKotodamaEffect(float boost) {
         tHue = (tHue + 60) % 360;
         bloomFactor -= 15 * boost;
         tMutation += 0.2 * boost;
-        }
+    }
     
     void update() {
         bLen = lerp(bLen, tLen, INTERPOLATION);
@@ -69,12 +70,12 @@ class Tree {
         bHue = lerp(bHue, tHue, INTERPOLATION);
         lSize = lerp(lSize, tLSize, INTERPOLATION);
         bMutation = lerp(bMutation, tMutation, INTERPOLATION);
-        }
+    }
     
     //--- 描画コア ---
     void display() {
         recursiveDraw(bLen, bThick, currentDepth);
-        }
+    }
     
     private void recursiveDraw(float len, float thick, int depth) {
         if (depth <= 0) return;
@@ -86,7 +87,7 @@ class Tree {
         if (depth <= 2) {
             if (isBloomed) drawFlowers(len, thick, depth);
             else drawLeaves(len, thick, depth);
-            }
+        }
         
         translate(0, -len, 0);
         
@@ -94,30 +95,30 @@ class Tree {
         int branches = (depth <= 3) ? 2 : 3;
         float wind = map(noise(frameCount * 0.01, depth), 0, 1, -0.05, 0.05);
         
-        for (inti = 0; i < branches; i++) {
+        for (int i = 0; i < branches; i++) {
             pushMatrix();
             rotateY((branches == 2) ? (PI * i) : (TWO_PI / 3 * i));
             rotateZ(bAngle + wind);
             recursiveDraw(len * 0.8, thick * 0.65, depth - 1);
             popMatrix();
-            }
         }
+    }
     
     private void drawStem(float r1, float r2, float h, int depth) {
         float ratio = pow(constrain(bMutation, 0, 1.0), mutationCurve);
         int segments = 5; 
         
         beginShape(QUAD_STRIP);
-        for (inti = 0; i <= segments; i++) {
+        for (int i = 0; i <= segments; i++) {
             float angle = i * TWO_PI / segments;
             fill(calcMutationColor(angle, depth, ratio, false));
             vertex(cos(angle) * r1, 0, sin(angle) * r1);
             
             fill(calcMutationColor(angle, depth, ratio, true));
             vertex(cos(angle) * r2, -h, sin(angle) * r2);
-            }
-        endShape();
         }
+        endShape();
+    }
     
     //変異度に応じた色計算の抽出
     private color calcMutationColor(float angle, int depth, float ratio, boolean isTop) {
@@ -133,14 +134,14 @@ class Tree {
         if (isTop) finalH = (finalH + 10 * ratio) % 360;
         
         return color(finalH, lerp(baseS, 90, ratio), lerp(baseB, chaosB, ratio));
-        }
+    }
     
     //--- モデル生成・判定 ---
     private void checkBloomCondition() {
         if (currentDay == STAGE_3_START && !isBloomed && bloomFactor >= BLOOM_THRESHOLD) {
             isBloomed = true;
-            }
         }
+    }
     
     
     private void createLeafModel() {
@@ -154,13 +155,13 @@ class Tree {
         leafModel.endShape(CLOSE);
         
         leafModel.disableStyle();
-        }
+    }
     
     //花弁モデルの生成（単純な4枚花弁）
     private void createFlowerModel() {
         flowerModel = createShape(GROUP);
-        for (inti = 0; i < 4; i++) {
-            PShapepetal = createShape();
+        for (int i = 0; i < 4; i++) {
+            PShape petal = createShape();
             petal.beginShape();
             petal.noStroke();
             petal.vertex(0, 0, 0);
@@ -172,9 +173,9 @@ class Tree {
             petal.disableStyle();
             petal.rotateY(HALF_PI * i);
             flowerModel.addChild(petal);
-            }
-        flowerModel.disableStyle();
         }
+        flowerModel.disableStyle();
+    }
     
     private void drawLeaves(float len, float thick, int depth) {
         // 変化率を適用した比率を算出 (0.0 - 1.0)
@@ -186,7 +187,7 @@ class Tree {
         // Saturation: カオス度に合わせて少し鮮やかに
         float leafS = map(ratio, 0, 1, 70, 90);
         
-        for (inti = 0; i < 2; i++) {
+        for (int i = 0; i < 2; i++) {
             pushMatrix();
             rotateY(PI * i);
             translate(thick * 0.5, -len * (0.5 + i * 0.3), 0);
@@ -195,8 +196,8 @@ class Tree {
             fill(leafH, leafS, 80, 200);
             shape(leafModel);
             popMatrix();
-            }
         }
+    }
     
     //花を描画するメソッド
     private void drawFlowers(float len, float thick, int depth) {
@@ -209,7 +210,7 @@ class Tree {
         float flowerB = map(ratio, 0, 1, 100, 20);
         // Saturation: 黒紫に近づくほど濃く
         float flowerS = map(ratio, 0, 1, 80, 100);
-        for (inti = 0; i < 2; i++) {
+        for (int i = 0; i < 2; i++) {
             pushMatrix();
             rotateY(PI * i);
             translate(thick * 0.6, -len * 0.8, 0); // 枝の先端寄りに配置
@@ -217,6 +218,6 @@ class Tree {
             fill(flowerH, flowerS, flowerB, 220); // 補色に近い色で花を表現
             shape(flowerModel);
             popMatrix();
-            }
         }
     }
+}
