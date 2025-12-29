@@ -1,7 +1,7 @@
-enum State { SUNNY, RAINY, MOONLIGHT }
+enum WeatherState { SUNNY, RAINY, MOONLIGHT }
 
 class Weather {
-    State currentState = State.SUNNY;
+    WeatherState currentState = WeatherState.SUNNY;
     
     // 雨のパーティクル用
     int rainCount = 150;
@@ -16,8 +16,8 @@ class Weather {
     }
     
     void next() {
-        int nextIndex = (currentState.ordinal() + 1) % State.values().length;
-        currentState = State.values()[nextIndex];
+        int nextIndex = (currentState.ordinal() + 1) % WeatherState.values().length;
+        currentState = WeatherState.values()[nextIndex];
     }
     
     void apply() {
@@ -39,8 +39,8 @@ class Weather {
                 ambientLight(240, 50, 15);
                 directionalLight(240, 60, 50, -0.5, 1, -0.5); 
                 break;
-            }
         }
+    }
     
     private void drawRain() {
         stroke(200, 10, 80, 150);
@@ -49,6 +49,11 @@ class Weather {
             line(rainX[i], rainY[i], rainX[i], rainY[i] + 20);
             rainY[i] += 15;
             if (rainY[i] > 500) rainY[i] = -500;
-            }
         }
     }
+
+    void setRandom() {
+        int randomIndex = int(random(WeatherState.values().length));
+        currentState = WeatherState.values()[randomIndex];
+    }
+}

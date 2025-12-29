@@ -28,13 +28,24 @@ class Tree {
     }
     
     //--- 成長・変異管理 ---
-    void grow(String type) {
+    void grow(String type, WeatherState currentWs) {
         float boost = map(currentDay, 1, MAX_DAYS, 1.0, 2.5);
+        float weatherBonus = 1.5;
         
-        switch(type) {
-            case CMD_WATER :      applyWaterEffect(boost); break;
-            case CMD_FERTILIZER : applyFertilizerEffect(boost); break;
-            case CMD_KOTODAMA :   applyKotodamaEffect(boost); break;
+        if (type.equals(CMD_WATER)) {
+            //晴（SUNNY）ならバフ
+            float currentBoost = (currentWs == WeatherState.SUNNY) ? boost * weatherBonus : boost;
+            applyWaterEffect(currentBoost);
+        } 
+        else if (type.equals(CMD_FERTILIZER)) {
+            //雨（RAINY）ならバフ
+            float currentBoost = (currentWs == WeatherState.RAINY) ? boost * weatherBonus : boost;
+            applyFertilizerEffect(currentBoost);
+        } 
+        else if (type.equals(CMD_KOTODAMA)) {
+            //月夜（MOONLIGHT）ならバフ
+            float currentBoost = (currentWs == WeatherState.MOONLIGHT) ? boost * weatherBonus : boost;
+            applyKotodamaEffect(currentBoost);
         }
         
         tAngle = constrain(tAngle, 0, PI / 4);
