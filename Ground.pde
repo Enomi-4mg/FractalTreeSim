@@ -6,7 +6,7 @@ class Ground {
     Ground() {
         // 初期色は緑（HSB: Hue=120付近）
         gColor = color(120, 60, 40); 
-}
+    }
     
     void display(float mutation) {
         pushMatrix();
@@ -26,8 +26,8 @@ class Ground {
         for (int i = 0; i <= res; i++) {
             float pos = -size / 2 + i * step;
             line(pos, -size / 2, pos, size / 2);
-            line( - size / 2, pos, size / 2, pos);
+            line( -size / 2, pos, size / 2, pos);
         }
         popMatrix();
-}
+    }
 }

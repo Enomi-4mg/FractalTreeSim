@@ -52,99 +52,6 @@ Weather.pde
 <files>
 This section contains the contents of the repository's files.
 
-<file path="Ground.pde">
-class Ground {
-    float size = 2000;
-    int res = 10; // 分割数（将来的な波形・変形用）
-    color gColor;
-    
-    Ground() {
-        // 初期色は緑（HSB: Hue=120付近）
-        gColor = color(120, 60, 40); 
-}
-    
-    void display(float mutation) {
-        pushMatrix();
-        rotateX(HALF_PI);
-        
-        // カオス度（mutation）に応じて色を濁らせるなどの拡張が可能
-        fill(gColor);
-        noStroke();
-        
-        // 平面の描画
-        rectMode(CENTER);
-        rect(0, 0, size, size);
-        
-        // グリッド線の描画（デバッグ・目安用）
-        stroke(120, 40, 20, 50);
-        float step = size / res;
-        for (int i = 0; i <= res; i++) {
-            float pos = -size / 2 + i * step;
-            line(pos, -size / 2, pos, size / 2);
-            line( - size / 2, pos, size / 2, pos);
-        }
-        popMatrix();
-}
-}
-</file>
-
-<file path="Weather.pde">
-enum State { SUNNY, RAINY, MOONLIGHT }
-
-class Weather {
-    State currentState = State.SUNNY;
-    
-    // 雨のパーティクル用
-    int rainCount = 150;
-    float[] rainX = new float[rainCount];
-    float[] rainY = new float[rainCount];
-    
-    Weather() {
-        for (int i = 0; i < rainCount; i++) {
-            rainX[i] = random( -width, width);
-            rainY[i] = random( -1000, 0);
-        }
-    }
-    
-    void next() {
-        int nextIndex = (currentState.ordinal() + 1) % State.values().length;
-        currentState = State.values()[nextIndex];
-    }
-    
-    void apply() {
-        switch(currentState) {
-            case SUNNY:
-                background(200, 20, 90); // 明るい空
-                ambientLight(0, 0, 50);
-                directionalLight(0, 0, 100, 0.5, 1, -1);
-                break;
-            
-            case RAINY:
-                background(200, 10, 30); // どんよりした空
-                ambientLight(0, 0, 20);
-                drawRain();
-                break;
-            
-            case MOONLIGHT:
-                background(240, 80, 10); // 深い夜空
-                ambientLight(240, 50, 15);
-                directionalLight(240, 60, 50, -0.5, 1, -0.5); 
-                break;
-            }
-        }
-    
-    private void drawRain() {
-        stroke(200, 10, 80, 150);
-        strokeWeight(1);
-        for (int i = 0; i < rainCount; i++) {
-            line(rainX[i], rainY[i], rainX[i], rainY[i] + 20);
-            rainY[i] += 15;
-            if (rainY[i] > 500) rainY[i] = -500;
-            }
-        }
-    }
-</file>
-
 <file path=".gitignore">
 .vscode/
 </file>
@@ -197,51 +104,102 @@ void drawHUD() {
 }
 </file>
 
-<file path="Interaction.pde">
-void keyPressed() {
-    //--- 天候切り替え ---
-    if (key == 'w' || key == 'W') {
-        myWeather.next();
-        return;
+<file path="Ground.pde">
+class Ground {
+    float size = 2000;
+    int res = 10; // 分割数（将来的な波形・変形用）
+    color gColor;
+    
+    Ground() {
+        // 初期色は緑（HSB: Hue=120付近）
+        gColor = color(120, 60, 40); 
     }
     
-    if (key == 'v' || key == 'V') {
-        isViewerMode = !isViewerMode;
-        return;
-    }
-    
-    if (key == 'v' || key == 'V') {
-        isViewerMode = !isViewerMode;
-        return;
+    void display(float mutation) {
+        pushMatrix();
+        rotateX(HALF_PI);
+        
+        // カオス度（mutation）に応じて色を濁らせるなどの拡張が可能
+        fill(gColor);
+        noStroke();
+        
+        // 平面の描画
+        rectMode(CENTER);
+        rect(0, 0, size, size);
+        
+        // グリッド線の描画（デバッグ・目安用）
+        stroke(120, 40, 20, 50);
+        float step = size / res;
+        for (int i = 0; i <= res; i++) {
+            float pos = -size / 2 + i * step;
+            line(pos, -size / 2, pos, size / 2);
+            line( -size / 2, pos, size / 2, pos);
         }
+        popMatrix();
+    }
+}
+</file>
+
+<file path="Weather.pde">
+enum WeatherState { SUNNY, RAINY, MOONLIGHT }
+
+class Weather {
+    WeatherState currentState = WeatherState.SUNNY;
     
-    if (currentDay >= MAX_DAYS) return;
+    // 雨のパーティクル用
+    int rainCount = 150;
+    float[] rainX = new float[rainCount];
+    float[] rainY = new float[rainCount];
     
-    if (key == '1') {
-        myTree.grow("WATER");
-        currentDay++;
-        } else if (key == '2') {
-        myTree.grow("FERTILIZER");
-        currentDay++;
-        } else if (key == '3') {
-        myTree.grow("KOTODAMA");
-        currentDay++;
+    Weather() {
+        for (int i = 0; i < rainCount; i++) {
+            rainX[i] = random( -width, width);
+            rainY[i] = random( -1000, 0);
+        }
+    }
+    
+    void next() {
+        int nextIndex = (currentState.ordinal() + 1) % WeatherState.values().length;
+        currentState = WeatherState.values()[nextIndex];
+    }
+    
+    void apply() {
+        switch(currentState) {
+            case SUNNY:
+                background(200, 20, 90); // 明るい空
+                ambientLight(0, 0, 50);
+                directionalLight(0, 0, 100, 0.5, 1, -1);
+                break;
+            
+            case RAINY:
+                background(200, 10, 30); // どんよりした空
+                ambientLight(0, 0, 20);
+                drawRain();
+                break;
+            
+            case MOONLIGHT:
+                background(240, 80, 10); // 深い夜空
+                ambientLight(240, 50, 15);
+                directionalLight(240, 60, 50, -0.5, 1, -0.5); 
+                break;
+        }
+    }
+    
+    private void drawRain() {
+        stroke(200, 10, 80, 150);
+        strokeWeight(1);
+        for (int i = 0; i < rainCount; i++) {
+            line(rainX[i], rainY[i], rainX[i], rainY[i] + 20);
+            rainY[i] += 15;
+            if (rainY[i] > 500) rainY[i] = -500;
         }
     }
 
-void mouseDragged() {
-    if (isViewerMode) {
-        camY += (mouseX - pmouseX) * 0.01;
-        camX -= (mouseY - pmouseY) * 0.01;
-        }
+    void setRandom() {
+        int randomIndex = int(random(WeatherState.values().length));
+        currentState = WeatherState.values()[randomIndex];
     }
-
-void mouseWheel(MouseEvent event) {
-    if (isViewerMode) {
-        camZoom -= event.getCount() * ZOOM_SENSITIVITY;
-        camZoom = constrain(camZoom, -1200, 600);
-        }
-    }
+}
 </file>
 
 <file path="FractalTreeSim.pde">
@@ -295,6 +253,51 @@ void draw() {
 }
 </file>
 
+<file path="Interaction.pde">
+void keyPressed() {
+    if (key == 'v' || key == 'V') {
+        isViewerMode = !isViewerMode;
+        return;
+    }
+    
+    if (currentDay >= MAX_DAYS) return;
+    
+    // 現在の天候を保持
+    WeatherState ws = myWeather.currentState;
+    
+    boolean acted = false;
+    if (key == '1') {
+        myTree.grow(CMD_WATER, ws);
+        acted = true;
+    } else if (key == '2') {
+        myTree.grow(CMD_FERTILIZER, ws);
+        acted = true;
+    } else if (key == '3') {
+        myTree.grow(CMD_KOTODAMA, ws);
+        acted = true;
+    }
+    
+    if (acted) {
+        currentDay++;
+        myWeather.setRandom();
+    }
+}
+
+void mouseDragged() {
+    if (isViewerMode) {
+        camY += (mouseX - pmouseX) * 0.01;
+        camX -= (mouseY - pmouseY) * 0.01;
+    }
+}
+
+void mouseWheel(MouseEvent event) {
+    if (isViewerMode) {
+        camZoom -= event.getCount() * ZOOM_SENSITIVITY;
+        camZoom = constrain(camZoom, -3000, 600);
+    }
+}
+</file>
+
 <file path="Tree.pde">
 class Tree {
     //--- 描画パラメータ ---
@@ -326,13 +329,24 @@ class Tree {
     }
     
     //--- 成長・変異管理 ---
-    void grow(String type) {
+    void grow(String type, WeatherState currentWs) {
         float boost = map(currentDay, 1, MAX_DAYS, 1.0, 2.5);
+        float weatherBonus = 1.5;
         
-        switch(type) {
-            case CMD_WATER :      applyWaterEffect(boost); break;
-            case CMD_FERTILIZER : applyFertilizerEffect(boost); break;
-            case CMD_KOTODAMA :   applyKotodamaEffect(boost); break;
+        if (type.equals(CMD_WATER)) {
+            //晴（SUNNY）ならバフ
+            float currentBoost = (currentWs == WeatherState.SUNNY) ? boost * weatherBonus : boost;
+            applyWaterEffect(currentBoost);
+        } 
+        else if (type.equals(CMD_FERTILIZER)) {
+            //雨（RAINY）ならバフ
+            float currentBoost = (currentWs == WeatherState.RAINY) ? boost * weatherBonus : boost;
+            applyFertilizerEffect(currentBoost);
+        } 
+        else if (type.equals(CMD_KOTODAMA)) {
+            //月夜（MOONLIGHT）ならバフ
+            float currentBoost = (currentWs == WeatherState.MOONLIGHT) ? boost * weatherBonus : boost;
+            applyKotodamaEffect(currentBoost);
         }
         
         tAngle = constrain(tAngle, 0, PI / 4);
